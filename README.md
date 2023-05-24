@@ -22,4 +22,4 @@ To ensure that error messages are printed on stderr, you can use the appropriate
 
 ## Contributors
 Favour Edobor: mzfavvy20@gmail.com
-Robert Amoah: ...
+Robert Amoah: mr_robertamoah@yahoo.com
