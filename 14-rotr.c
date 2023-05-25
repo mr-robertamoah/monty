@@ -11,25 +11,19 @@ void rotr(stack_t **stack, unsigned int line_number)
 	stack_t *tmp1, *tmp2;
 
 	(void) stack;
+	(void) line_number;
 	if (argument->stack_length < 2)
-	{
-		fprintf(stderr, "L%d: can't mod, stack too short\n", line_number);
-		free_all_args();
-		exit(EXIT_FAILURE);
-	}
+		return;
 
-	tmp1 = argument->stackHead;
-	tmp2 = tmp1->next;
+	tmp1 = tmp2 = argument->stackHead;
+	while (tmp2->next != NULL)
+		tmp2 = tmp2->next;
 
-	if (tmp1->n == 0)
-	{
-		fprintf(stderr, "L%d: division by zero\n", line_number);
-		free_all_args();
-		exit(EXIT_FAILURE);
-	}
+	if (tmp2->prev)
+		tmp2->prev->next = NULL;
+	tmp2->prev = NULL;
+	tmp2->next = tmp1;
+	tmp1->prev = tmp2;
 
-	tmp2->n = tmp2->n % tmp1->n;
-	delete_stack_node();
-
-	argument->stack_length -= 1;
+	argument->stackHead = tmp2;
 }
