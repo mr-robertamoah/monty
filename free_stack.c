@@ -1,7 +1,7 @@
 #include "monty.h"
 
 /**
-* free_dlistint - free the nodes in a stack list
+* free_stack - free the nodes in a stack list
 * @head: first node of a dlistint link
 * Return: void
 */
