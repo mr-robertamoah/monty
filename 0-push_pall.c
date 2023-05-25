@@ -1,7 +1,5 @@
 #include "monty.h"
 
-argument_t *argument = NULL;
-
 /**
  * push - Pushes an integer onto the stack.
  * @stack: Pointer to the stack.
