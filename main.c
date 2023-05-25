@@ -24,9 +24,12 @@ int is_number(char *str)
 	return (1);
 }
 
-void run_instruction()
+void runInstruction()
 {
 	stack_t *stack = NULL;
+
+	if (argument->n_tokens == 0)
+		return;
 
 	argument->instruction->f(&stack, argument->line_number);
 }
@@ -34,7 +37,16 @@ void run_instruction()
 void pint(stack_t **stack, unsigned int line_number)
 {
 	(void) stack;
-	(void) line_number;
+	if (argument->stackHead == NULL)
+	{
+		fprintf(stderr, "L%d: can't pint, stack empty\n", line_number);
+		closeStream();
+		free_toks();
+		free_arg();
+		exit(EXIT_FAILURE);
+	}
+
+	printf("%d\n", argument->stackHead->n);
 }
 
 void nop(stack_t **stack, unsigned int line_number)
@@ -45,20 +57,66 @@ void nop(stack_t **stack, unsigned int line_number)
 
 void swap(stack_t **stack, unsigned int line_number)
 {
+	stack_t *tmp1, *tmp2;
+
 	(void) stack;
-	(void) line_number;
+	if (argument->stack_length < 2)
+	{
+		fprintf(stderr, "L%d: can't swap, stack too short\n", line_number);
+		closeStream();
+		free_toks();
+		free_arg();
+		exit(EXIT_FAILURE);
+	}
+
+	tmp1 = argument->stackHead;
+	tmp2 = tmp1->next;
+	tmp1->next = tmp2->next;
+	if (tmp1->next)
+		tmp1->next->prev = tmp1;
+	tmp2->next = tmp1;
+	tmp1->prev = tmp2;
+	tmp2->prev = NULL;
+	argument->stackHead = tmp2;
 }
 
 void add(stack_t **stack, unsigned int line_number)
 {
+	stack_t *tmp1, *tmp2;
+
 	(void) stack;
-	(void) line_number;
+	if (argument->stack_length < 2)
+	{
+		fprintf(stderr, "L%d: can't add, stack too short\n", line_number);
+		closeStream();
+		free_toks();
+		free_arg();
+		exit(EXIT_FAILURE);
+	}
+
+	tmp1 = argument->stackHead;
+	tmp2 = tmp1->next;
+
+	tmp2->n = tmp1->n + tmp2->n;
+	delete_stack_node();
+
+	argument->stack_length -= 1;
 }
 
 void pop(stack_t **stack, unsigned int line_number)
 {
 	(void) stack;
-	(void) line_number;
+	if (argument->stackHead == NULL)
+	{
+		fprintf(stderr, "L%d: can't pint, stack empty\n", line_number);
+		closeStream();
+		free_toks();
+		free_arg();
+		exit(EXIT_FAILURE);
+	}
+
+	delete_stack_node();
+	argument->stack_length -= 1;
 }
 
 void push(stack_t **stack, unsigned int line_number)
@@ -83,6 +141,7 @@ void push(stack_t **stack, unsigned int line_number)
 		argument->stackHead->prev = *stack;
 	}
 	argument->stackHead = *stack;
+	argument->stack_length += 1;
 }
 
 void pall(stack_t **stack, unsigned int line_number)
@@ -135,6 +194,15 @@ void free_stackHead()
 	argument->stackHead = NULL;
 }
 
+void closeStream()
+{
+	if (argument->stream)
+	{
+		fclose(argument->stream);
+		argument->stream = NULL;
+	}
+}
+
 void free_arg()
 {
 	if (argument == NULL)
@@ -179,23 +247,20 @@ void malloc_failed()
 	exit(EXIT_FAILURE);
 }
 
-FILE *getStream(char *fileName)
+void setStream(char *fileName)
 {
 	int fd;
-	FILE *stream = NULL;
 
 	fd = open(fileName, O_RDONLY);
 	if (fd == -1)
 		read_failed(fileName);
 
-	stream = fdopen(fd, "r");
-	if (stream == NULL)
+	argument->stream = fdopen(fd, "r");
+	if (argument->stream == NULL)
 	{
 		close(fd);
 		read_failed(fileName);
 	}
-
-	return (stream);
 }
 
 void tokenize()
@@ -229,7 +294,7 @@ void tokenize()
 	free(linecpy);
 }
 
-void get_instruction()
+void setInstruction()
 {
 	int i = 0;
 	instruction_t instructions[] = {
@@ -266,6 +331,9 @@ void init_arg()
 	argument->line = NULL;
 
 	argument->n_tokens = 0;
+	argument->line_number = 0;
+	argument->stack_length = 0;
+	argument->stream = NULL;
 }
 
 /**
@@ -279,7 +347,6 @@ int main(int argc, char **argv)
 {
 	ssize_t lines_read = 0;
 	size_t n = 0;
-	FILE *stream = NULL;
 
 	check_num_of_arguments(argc);
 
@@ -288,18 +355,19 @@ int main(int argc, char **argv)
 		malloc_failed();
 
 	init_arg();
-	stream = getStream(argv[1]);
+	setStream(argv[1]);
 
-	while ((lines_read = getline(&argument->line, &n, stream)) != -1)
+	while ((lines_read = getline(&argument->line, &n, argument->stream)) != -1)
 	{
 		argument->line_number += 1;
 		tokenize();
-		get_instruction();
-		run_instruction();
+		setInstruction();
+		runInstruction();
 		free_toks();
 	}
 
+	closeStream();
 	free_arg();
-	fclose(stream);
+
 	return (0);
 }

@@ -51,6 +51,8 @@ typedef struct argument_s
 	unsigned int line_number; /* for tracking current line number */
 	instruction_t *instruction; /* a valid instruction from a line */
 	int n_tokens; /* number of tokens created from line */
+	FILE *stream; /* file stream */
+	int stack_length; /* tracks the number of nodes in the stack */
 	stack_t *stackHead; /* head/top of the stack (doubly linked lists of struct stack_s) */
 } argument_t;
 
@@ -66,7 +68,9 @@ void nop(stack_t **stack, unsigned int line_number);
 
 void malloc_failed();
 void free_arg();
+void free_toks();
 void free_stack(stack_t *head);
 void delete_stack_node();
+void closeStream();
 
 #endif /* MONTY_H */
