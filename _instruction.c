@@ -64,6 +64,9 @@ void setInstruction(void)
 		{"nop", &nop}, {"add", &add},
 		{"pall", &pall}, {"sub", &sub},
 		{"div", &_div}, {"mul", &mul},
+		{"rotl", &rotl}, {"rotr", &rotr},
+		{"stack", &stack}, {"queue", &queue},
+		{"pstr", &pstr}, {"pchar", &pchar},
 		{"mod", &mod},
 		{NULL, NULL}
 	};

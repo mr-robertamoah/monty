@@ -1,19 +1,19 @@
 #include "monty.h"
 
 /**
- * _div - Divides the second top element of the stack by the top element.
+ * rotr - rotates the stack to the bottom
  * @stack: Pointer to the stack.
- * @line_number: Line number where the _div function is called.
+ * @line_number: Line number where the mul function is called.
  */
 
-void _div(stack_t **stack, unsigned int line_number)
+void rotr(stack_t **stack, unsigned int line_number)
 {
 	stack_t *tmp1, *tmp2;
 
 	(void) stack;
 	if (argument->stack_length < 2)
 	{
-		fprintf(stderr, "L%d: can't div, stack too short\n", line_number);
+		fprintf(stderr, "L%d: can't mod, stack too short\n", line_number);
 		free_all_args();
 		exit(EXIT_FAILURE);
 	}
@@ -28,7 +28,7 @@ void _div(stack_t **stack, unsigned int line_number)
 		exit(EXIT_FAILURE);
 	}
 
-	tmp2->n = tmp2->n / tmp1->n;
+	tmp2->n = tmp2->n % tmp1->n;
 	delete_stack_node();
 
 	argument->stack_length -= 1;
