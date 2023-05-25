@@ -9,7 +9,7 @@ void runInstruction(void)
 {
 	stack_t *stack = NULL;
 
-	if (argument->n_tokens == 0)
+	if (argument->n_tokens == 0 || argument->isComment)
 		return;
 
 	argument->instruction->f(&stack, argument->line_number);
@@ -64,11 +64,19 @@ void setInstruction(void)
 		{"nop", &nop}, {"add", &add},
 		{"pall", &pall}, {"sub", &sub},
 		{"div", &_div}, {"mul", &mul},
+		{"mod", &mod},
 		{NULL, NULL}
 	};
 
 	if (argument->n_tokens == 0) /* no instructions */
 		return;
+
+	argument->isComment = 0;
+	if (is_comment())
+	{
+		argument->isComment = 1;
+		return;
+	}
 
 	for (; instructions[i].opcode != NULL; i++)
 	{

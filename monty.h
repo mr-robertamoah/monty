@@ -51,6 +51,7 @@ typedef struct argument_s
 	unsigned int line_number; /* for tracking current line number */
 	instruction_t *instruction; /* a valid instruction from a line */
 	int n_tokens; /* number of tokens created from line */
+	int isComment; /* tracks whether or not tokens start with # */
 	FILE *stream; /* file stream */
 	int stack_length; /* tracks the number of nodes in the stack */
 	stack_t *stackHead; /* head/top of the stack (doubly linked lists of struct stack_s) */
@@ -71,6 +72,7 @@ void nop(stack_t **stack, unsigned int line_number);
 void sub(stack_t **stack, unsigned int line_number);
 void _div(stack_t **stack, unsigned int line_number);
 void mul(stack_t **stack, unsigned int line_number);
+void mod(stack_t **stack, unsigned int line_number);
 
 void check_num_of_arguments(int argc);
 void read_failed(char *fileName);
@@ -90,6 +92,7 @@ void tokenize(void);
 void init_arg(void);
 
 
+int is_comment();
 int is_number(char *str);
 
 

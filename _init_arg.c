@@ -14,6 +14,7 @@ void init_arg(void)
 	argument->line = NULL;
 
 	argument->n_tokens = 0;
+	argument->isComment = 0;
 	argument->line_number = 0;
 	argument->stack_length = 0;
 	argument->stream = NULL;
