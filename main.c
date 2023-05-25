@@ -40,9 +40,7 @@ void pint(stack_t **stack, unsigned int line_number)
 	if (argument->stackHead == NULL)
 	{
 		fprintf(stderr, "L%d: can't pint, stack empty\n", line_number);
-		closeStream();
-		free_toks();
-		free_arg();
+		free_all_args();
 		exit(EXIT_FAILURE);
 	}
 
@@ -63,9 +61,7 @@ void swap(stack_t **stack, unsigned int line_number)
 	if (argument->stack_length < 2)
 	{
 		fprintf(stderr, "L%d: can't swap, stack too short\n", line_number);
-		closeStream();
-		free_toks();
-		free_arg();
+		free_all_args();
 		exit(EXIT_FAILURE);
 	}
 
@@ -78,6 +74,83 @@ void swap(stack_t **stack, unsigned int line_number)
 	tmp1->prev = tmp2;
 	tmp2->prev = NULL;
 	argument->stackHead = tmp2;
+}
+
+void _div(stack_t **stack, unsigned int line_number)
+{
+	stack_t *tmp1, *tmp2;
+
+	(void) stack;
+	if (argument->stack_length < 2)
+	{
+		fprintf(stderr, "L%d: can't div, stack too short\n", line_number);
+		free_all_args();
+		exit(EXIT_FAILURE);
+	}
+
+	tmp1 = argument->stackHead;
+	tmp2 = tmp1->next;
+
+	if (tmp2->n == 0)
+	{
+		fprintf(stderr, "L%d: division by zero\n", line_number);
+		free_all_args();
+		exit(EXIT_FAILURE);
+	}
+
+	tmp2->n = tmp2->n / tmp1->n;
+	delete_stack_node();
+
+	argument->stack_length -= 1;
+}
+
+void free_all_args()
+{
+	closeStream();
+	free_toks();
+	free_arg();
+}
+
+void mul(stack_t **stack, unsigned int line_number)
+{
+	stack_t *tmp1, *tmp2;
+
+	(void) stack;
+	if (argument->stack_length < 2)
+	{
+		fprintf(stderr, "L%d: can't mul, stack too short\n", line_number);
+		free_all_args();
+		exit(EXIT_FAILURE);
+	}
+
+	tmp1 = argument->stackHead;
+	tmp2 = tmp1->next;
+
+	tmp2->n = tmp2->n * tmp1->n;
+	delete_stack_node();
+
+	argument->stack_length -= 1;
+}
+
+void sub(stack_t **stack, unsigned int line_number)
+{
+	stack_t *tmp1, *tmp2;
+
+	(void) stack;
+	if (argument->stack_length < 2)
+	{
+		fprintf(stderr, "L%d: can't sub, stack too short\n", line_number);
+		free_all_args();
+		exit(EXIT_FAILURE);
+	}
+
+	tmp1 = argument->stackHead;
+	tmp2 = tmp1->next;
+
+	tmp2->n = tmp2->n - tmp1->n;
+	delete_stack_node();
+
+	argument->stack_length -= 1;
 }
 
 void add(stack_t **stack, unsigned int line_number)
@@ -229,6 +302,8 @@ void invalid_instruction()
 {
 	fprintf(stderr, "L%d: unknown instruction %s\n",
 		argument->line_number, argument->line_strs[0]);
+	closeStream();
+	free_toks();
 	free_arg();
 	exit(EXIT_FAILURE);
 }
@@ -301,13 +376,15 @@ void setInstruction()
 		{"push", &push}, {"pop", &pop},
 		{"pint", &pint}, {"swap", &swap},
 		{"nop", &nop}, {"add", &add},
-		{"pall", &pall}
+		{"pall", &pall}, {"sub", &sub},
+		{"div", &_div}, {"mul", &mul},
+		{NULL, NULL}
 	};
 
 	if (argument->n_tokens == 0) /* no instructions */
 		return;
 
-	for (; i < NO_OF_INSTRUCTIONS; i++)
+	for (; instructions[i].opcode != NULL; i++)
 	{
 		/* compare opcode of instruction to first token (instruction) */
 		if (strcmp(instructions[i].opcode, argument->line_strs[0]) == 0)
