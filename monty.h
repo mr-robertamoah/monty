@@ -55,6 +55,7 @@ typedef struct argument_s
 	FILE *stream; /* file stream */
 	int stack_length; /* tracks the number of nodes in the stack */
 	stack_t *stackHead; /* head/top of the stack (doubly linked lists of struct stack_s) */
+	int stack; /* for switching between the use of stack and queue */
 } argument_t;
 
 FILE *fdopen(int fd, const char *mode);

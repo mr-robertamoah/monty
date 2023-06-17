@@ -22,12 +22,28 @@ void push(stack_t **stack, unsigned int line_number)
 
 	(*stack)->n = (int) atoi(argument->line_strs[1]);
 
-	if (argument->stackHead != NULL)
+	if (argument->stackHead == NULL)
 	{
-		(*stack)->next = argument->stackHead;
-		argument->stackHead->prev = *stack;
+		argument->stackHead = *stack;
 	}
-	argument->stackHead = *stack;
+	else
+	{
+		if (argument->stack)
+		{
+			(*stack)->next = argument->stackHead;
+			argument->stackHead->prev = *stack;
+			argument->stackHead = *stack;
+		}
+		else
+		{
+			stack_t *tmp = argument->stackHead;
+
+			while (tmp->next)
+				tmp = tmp->next;
+			tmp->next = *stack;
+			(*stack)->prev = tmp;
+		}
+	}
 	argument->stack_length += 1;
 }
 
